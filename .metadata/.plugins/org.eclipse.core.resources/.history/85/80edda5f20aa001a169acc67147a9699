@@ -1,0 +1,7 @@
+package com.ibm.config;
+
+@Configuration
+@EnableWebSecurity
+public class Config extends WebSecurityConfigurerAdapter{
+
+}
