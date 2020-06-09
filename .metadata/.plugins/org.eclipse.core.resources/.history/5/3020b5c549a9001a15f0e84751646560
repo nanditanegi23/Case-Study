@@ -1,0 +1,29 @@
+package com.ibm.service;
+
+import org.springframework.stereotype.Service;
+
+@Service
+public class ProductService {
+
+	 @Autowired
+	    ProductInfoRepository productInfoRepository;
+
+	    @Autowired
+	    CategoryService categoryService;
+
+	    @Override
+	    public ProductInfo findOne(String productId) {
+	        ProductInfo productInfo = productInfoRepository.findFirstByProductId(productId);
+	        return productInfo;
+	    }
+
+//	    @Override
+//	    public Page<ProductInfo> findUpAll(Pageable pageable) {
+//	        return productInfoRepository.findAllByProductStatusOrderByProductIdAsc(ProductStatusEnum.UP.getCode(),pageable);
+//	    }
+
+	    @Override
+	    public Page<ProductInfo> findAll(Pageable pageable) {
+	        return productInfoRepository.findAllByOrderByProductId(pageable);
+	    }
+}

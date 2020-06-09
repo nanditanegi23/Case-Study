@@ -1,0 +1,48 @@
+package com.ibm.comtroller;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Controller;
+
+import com.ibm.domain.ProductInfo;
+import com.ibm.service.CartService;
+
+@Controller
+public class CartController {
+	
+	@Autowired
+	CartService cartService;
+	
+	@PostMapping("")
+    public ProductInfo addToCart(@Valid ItemForm itemForm) {
+        cartService.addItem(itemForm);
+        return ResponseEntity<ProductInfo>.ok().boy((cartService.addItem(itemForm)));
+        		
+    }
+
+    @PostMapping("/checkout")
+    public  String checkout(Model model, Principal principal) {
+        User user = userService.findOne(principal.getName());// Email as username
+        cartService.checkout(user);
+
+        model.addAttribute("msg", ResultEnum.CART_CHECKOUT_SUCCESS.getMessage());
+        model.addAttribute("url", "/order");
+        return "/common/success";
+    }
+
+    @GetMapping("/remove")
+    public String remove(@RequestParam("product_id") String productId) {
+        cartService.removeItem(productId);
+        return "redirect:" + "/cart";
+    }
+
+    @GetMapping("/change")
+    public String plus(@RequestParam("product_id") String poductId, @RequestParam("quantity") Integer quantity) {
+        cartService.updateQuantity(poductId, quantity);
+        return "redirect:" + "/cart";
+    }
+
+
+
+}

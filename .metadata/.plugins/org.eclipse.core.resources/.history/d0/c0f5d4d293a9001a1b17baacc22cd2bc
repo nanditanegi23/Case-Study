@@ -1,0 +1,55 @@
+package com.ibm.controller;
+
+import java.util.List;
+
+import org.apache.tomcat.util.net.openssl.ciphers.Authentication;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestParam;
+
+import com.ibm.domain.Order;
+import com.ibm.domain.User;
+import com.ibm.service.OrderService;
+
+@Controller
+public class OrderController {
+
+	@Autowired
+	OrderService orderService;
+
+	@GetMapping("/order")
+	public ResponseEntity<List<Order>> OrderList() {
+		List<Order> orderList;
+		//Get user details from session
+//			orderList = orderService.findByBuyerEmail(//user email id);
+			orderList = orderService.findAll();
+		return ResponseEntity.ok().body(orderList);
+	}
+
+	@GetMapping("/order/cancel/{id}")
+	public ResponseEntity<Object> cancel(@PathVariable("id") Long orderId, Model model, Authentication authentication) {
+		Order orderMain = orderService.findOne(orderId);
+		//Verify Accound by emil Id from session
+		
+		return new ResponseEntity<Object>(orderService.cancel(orderId), HttpStatus.OK);
+	}
+	
+	
+	@GetMapping("/order/show/{id}")
+    public ResponseEntity<Order> show(@PathVariable("id") Long orderId){
+//        boolean isCustomer = authentication.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_CUSTOMER"));
+//        UserDetails userDetails = (UserDetails) authentication.getPrincipal();
+        Order order = orderService.findOne(orderId);
+        if( isCustomer && !userDetails.getUsername().equals(order.getBuyerEmail())) {
+            		   return new ResponseEntity<Order>(order, HttpStatus.FORBIDDEN);
+        }
+
+        return new ResponseEntity<Order>(order, HttpStatus.OK);
+    }
+
+}

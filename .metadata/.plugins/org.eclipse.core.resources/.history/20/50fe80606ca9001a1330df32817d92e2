@@ -1,0 +1,53 @@
+package com.ibm.service;
+
+import java.util.LinkedHashMap;
+import java.util.Map;
+
+import org.hibernate.cache.spi.support.AbstractReadWriteAccess.Item;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.ibm.domain.ItemAdd;
+import com.ibm.domain.ProductInfo;
+
+@Service
+public class CartService {
+	
+	@Autowired
+	ProductService productService;
+	
+	 private Map<String, Item> map = new LinkedHashMap<>();
+	
+	public void addItem(ItemAdd itemAdd) {
+        ProductInfo productInfo = productService.findOne(itemAdd.getProductId());
+
+        if ("Unavailable".equals(productInfo.getProductStatus())) {
+            throw new Exception("Out Of Stock");
+        }
+
+        // Check whether is in the cart
+        if(map.containsKey(itemAdd.getProductId())){
+            // Update quantity
+//            Integer old = map.get(itemAdd.getQuantity());
+            itemAdd.setQuantity(old + itemAdd.getQuantity());
+        }
+
+        map.put(itemAdd.getProductId(), new Item(productInfo, itemAdd.getQuantity()));
+    }
+
+    @Override
+    public void removeItem(String productId) {
+        map.remove(productId);
+    }
+
+    @Override
+    public void updateQuantity(String productId, Integer quantity) {
+        if (!map.containsKey(productId)) throw new MyException(ResultEnum.PRODUCT_NOT_IN_CART);
+        Item item = map.get(productId);
+        Integer max = item.getProductInfo().getProductStock();
+        if(quantity > 0) {
+            item.setQuantity(quantity > max ? max : quantity);
+        }
+    }
+
+}

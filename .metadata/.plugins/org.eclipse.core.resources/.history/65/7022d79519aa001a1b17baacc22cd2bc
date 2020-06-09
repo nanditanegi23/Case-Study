@@ -1,0 +1,6 @@
+package com.ibm.security.service;
+
+@Service
+public class JwtUserDetailsService {
+
+}

@@ -1,0 +1,12 @@
+package com.ibm.security.domain;
+
+import javax.annotation.sql.DataSourceDefinition;
+
+@Data
+public class JwtRequest {
+
+private static final long serialVersionUID = 5926468583005150707L;
+private String username;
+private String password;
+
+}

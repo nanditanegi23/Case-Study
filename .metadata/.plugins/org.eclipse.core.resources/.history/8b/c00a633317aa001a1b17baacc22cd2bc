@@ -1,0 +1,8 @@
+package com.ibm.security.config;
+
+@Configuration
+@EnableWebSecurity
+@EnableGlobalMethodSecurity(prePostEnabled = true)
+public class WebSecurityConfig {
+
+}

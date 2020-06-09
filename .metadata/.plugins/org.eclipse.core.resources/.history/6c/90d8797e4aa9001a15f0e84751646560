@@ -1,0 +1,16 @@
+package com.ibm.repository;
+
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
+
+import com.ibm.domain.ProductInfo;
+
+@Repository
+public interface ProductRepo extends JpaRepository<ProductInfo, String>{
+
+    ProductInfo findFirstByProductId(String id);
+    
+    Page<ProductInfo> findAllByOrderByProductId( Pageable pageable);
+
+    
+}

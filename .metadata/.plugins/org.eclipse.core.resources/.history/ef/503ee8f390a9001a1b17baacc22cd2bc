@@ -1,0 +1,41 @@
+package com.ibm.controller;
+
+import java.util.Map;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.servlet.ModelAndView;
+
+import com.ibm.domain.Category;
+import com.ibm.domain.ProductInfo;
+import com.ibm.service.CategoryService;
+import com.ibm.service.ProductService;
+
+@Controller
+public class CategoryController {
+    @Autowired
+    CategoryService categoryService;
+    @Autowired
+    ProductService productService;
+
+    //Show Products in category
+    @GetMapping("/category/{type}")
+    public ModelAndView showOne(@PathVariable("type") Integer categoryType,
+                                Map<String, Object> map) {
+
+    	Category res = categoryService.findByCategoryType(categoryType);
+//        PageRequest request = PageRequest.of(page - 1, size);
+        map.put("category", res);
+        map.put("products", productInCategory);
+        Page<ProductInfo> productInCategory = productInfoRepository.findAllByCategoryTypeOrderByProductIdAsc(categoryType, pageable);
+    }
+        		
+        		productService.findAllInCategory(categoryType, request);
+        return new ModelAndView("/category/show", map);
+    }
+}

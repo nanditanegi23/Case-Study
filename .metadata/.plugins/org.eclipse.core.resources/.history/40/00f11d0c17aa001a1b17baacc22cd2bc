@@ -1,0 +1,10 @@
+package com.ibm.security.config;
+
+public class JwtAuth implements AuthenticationEntryPoint, Serializable{
+	private static final long serialVersionUID = -7858869558953243875L;
+	@Override
+	public void commence(HttpServletRequest requeØst, HttpServletResponse response,
+	AuthenticationException authException) throws IOException {
+	response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Unauthorized");
+	}
+}

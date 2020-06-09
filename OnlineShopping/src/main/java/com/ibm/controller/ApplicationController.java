@@ -1,0 +1,31 @@
+package com.ibm.controller;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+
+import com.ibm.domain.User;
+import com.ibm.repository.ApplicationRepo;
+
+@Controller
+public class ApplicationController {
+	@Autowired
+	 private ApplicationRepo applicationRepo;
+	
+	    private BCryptPasswordEncoder bCryptPasswordEncoder;
+
+	    public void UserController(ApplicationRepo applicationRepo,
+	                          BCryptPasswordEncoder bCryptPasswordEncoder) {
+	        this.applicationRepo = applicationRepo;
+	        this.bCryptPasswordEncoder = bCryptPasswordEncoder;
+	    }
+
+	    @PostMapping("/sign-up")
+	    public void signUp(@RequestBody User user) {
+	        user.setPassword(bCryptPasswordEncoder.encode(user.getPassword()));
+	        applicationRepo.save(user);
+	    }
+
+}

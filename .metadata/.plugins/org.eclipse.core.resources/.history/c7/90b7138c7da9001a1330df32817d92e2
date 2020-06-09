@@ -1,0 +1,64 @@
+package com.ibm.controller;
+
+import java.util.Collection;
+import java.util.List;
+
+import org.apache.tomcat.util.net.openssl.ciphers.Authentication;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestParam;
+
+import com.ibm.domain.Order;
+import com.ibm.domain.User;
+import com.ibm.service.OrderService;
+
+@Controller
+public class OrderController {
+
+	@Autowired
+	OrderService orderService;
+
+	@GetMapping("/order")
+	public ResponseEntity<List<Order>> OrderList(@RequestParam(value = "page", defaultValue = "1") Integer page,
+			@RequestParam(value = "size", defaultValue = "10") Integer size, Authentication authentication,
+			Model model) {
+		List<Order> orderList;
+		if (authentication.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_CUSTOMER"))) {
+			orderList = orderService.findByBuyerEmail(authentication.getName(), request);
+		} else {
+			orderList = orderService.findAll();
+		}
+		return ResponseEntity.ok().body(orderList);
+	}
+
+	@GetMapping("/order/cancel/{id}")
+	public String cancel(@PathVariable("id") Long orderId, Model model, Authentication authentication) {
+		Order orderMain = orderService.findOne(orderId);
+		if (authentication.getName() != orderMain.getBuyerEmail()
+				&& authentication.getAuthorities().contains("ROLE_CUSTOMER")) {
+			return "redirect:" + "/403";
+		}
+		orderService.cancel(orderId);
+		return "redirect:" + "/order";
+	}
+	
+	
+	@GetMapping("/order/show/{id}")
+    public String show(@PathVariable("id") Long orderId, Authentication authentication){
+        boolean isCustomer = authentication.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_CUSTOMER"));
+        User user = (User) authentication.getPrincipal();
+        Order order = orderService.findOne(orderId);
+        if( isCustomer && !user.getUsername().equals(order.getBuyerEmail())) {
+            return new ResponseEntity<
+        }
+
+        Collection<ProductInOrder> items = orderMain.getProducts();
+        model.addAttribute("items", items);
+        return "/order/show";
+    }
+
+}

@@ -1,0 +1,60 @@
+package com.ibm.comtroller;
+
+import java.security.Principal;
+import java.util.Map;
+
+import javax.validation.Valid;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+
+import com.ibm.domain.ItemAdd;
+import com.ibm.domain.ProductInfo;
+import com.ibm.domain.User;
+import com.ibm.repository.CartRepo;
+import com.ibm.repository.UserRepo;
+
+@Controller
+public class CartController {
+	
+	@Autowired
+	CartRepo cartRepo;
+	
+	@Autowired
+	UserRepo userRepo;
+	
+	@PostMapping("")
+    public ResponseEntity<Object> addToCart(@Valid ItemAdd itemAdd) {
+		return new ResponseEntity<Object>(cartRepo.addItem(itemAdd), HttpStatus.OK);
+        		
+    }
+
+    @PostMapping("/checkout")
+    public  String checkout(Model model, Principal principal) {
+        User user = userRepo.findOne(principal.getName());// Email as username
+        cartRepo.checkout(user);
+        return new ResponseEntity<Object>(cartRepo.checkout(user, HttpStatus.OK);
+        
+    }
+
+    @GetMapping("/remove")
+    public String remove(@RequestParam("product_id") String productId) {
+        cartRepo.removeItem(productId);
+        return "redirect:" + "/cart";
+    }
+
+    @GetMapping("/change")
+    public String plus(@RequestParam("product_id") String poductId, @RequestParam("quantity") Integer quantity) {
+        cartRepo.updateQuantity(poductId, quantity);
+        return "redirect:" + "/cart";
+    }
+
+
+
+}

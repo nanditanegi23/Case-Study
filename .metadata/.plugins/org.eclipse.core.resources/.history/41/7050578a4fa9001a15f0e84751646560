@@ -1,0 +1,15 @@
+package com.ibm.repository;
+
+import org.springframework.http.HttpStatus;
+import org.springframework.stereotype.Repository;
+
+import com.ibm.domain.ItemAdd;
+import com.ibm.domain.ProductInfo;
+
+@Repository
+public interface CartRepo {
+
+	  HttpStatus addItem(ItemAdd itemAdd);
+	  HttpStatus removeItem(String productId);
+	    ProductInfo updateQuantity(String productId, Integer quantity);
+}

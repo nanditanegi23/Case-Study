@@ -1,0 +1,14 @@
+package com.ibm.repository;
+
+import java.util.List;
+
+import org.springframework.data.jpa.repository.JpaRepository;
+
+public interface CategoryRepo extends JpaRepository<Category, Integer> {
+    // Some category
+    List<Category> findByCategoryTypeInOrderByCategoryTypeAsc(List<Integer> categoryTypes);
+    // All category
+    List<Category> findAllByOrderByCategoryType();
+    // One category
+    Category findByCategoryType(Integer categoryType);
+}}

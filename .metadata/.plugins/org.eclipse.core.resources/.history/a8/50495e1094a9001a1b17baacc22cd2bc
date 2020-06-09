@@ -1,0 +1,51 @@
+package com.ibm.controller;
+
+import java.util.List;
+
+import org.apache.tomcat.util.net.openssl.ciphers.Authentication;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestParam;
+
+import com.ibm.domain.Order;
+import com.ibm.domain.User;
+import com.ibm.service.OrderService;
+
+@Controller
+public class OrderController {
+
+	@Autowired
+	OrderService orderService;
+
+	@GetMapping("/order")
+	public ResponseEntity<List<Order>> OrderList() {
+		List<Order> orderList;
+		//Get user details from session
+//			orderList = orderService.findByBuyerEmail(//user email id);
+			orderList = orderService.findAll();
+		return ResponseEntity.ok().body(orderList);
+	}
+
+	@GetMapping("/order/cancel/{id}")
+		Order orderMain = orderService.findOne(orderId);
+		//Verify Accound by emil Id from session and role to cancel order
+	public ResponseEntity<Object> cancel(@PathVariable("id") Long orderId) {
+		
+		return new ResponseEntity<Object>(orderService.cancel(orderId), HttpStatus.OK);
+	}
+	
+	
+	@GetMapping("/order/show/{id}")
+    public ResponseEntity<Order> show(@PathVariable("id") Long orderId) throws Exception{
+		//Verify emil and role to view
+        Order order = orderService.findOne(orderId);
+
+        return new ResponseEntity<Order>(order, HttpStatus.OK);
+    }
+
+}

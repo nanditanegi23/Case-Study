@@ -1,0 +1,107 @@
+package com.ibm.service;
+
+import java.util.Collection;
+import java.util.LinkedHashMap;
+import java.util.Map;
+
+import javax.transaction.Transactional;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.ibm.domain.Item;
+import com.ibm.domain.ItemAdd;
+import com.ibm.domain.Order;
+import com.ibm.domain.ProductInfo;
+import com.ibm.domain.User;
+import com.ibm.repository.OrderRepo;
+import com.ibm.repository.ProductRepo;
+
+@Service
+public class CartService {
+
+	@Autowired
+	ProductService productService;
+
+	@Autowired
+	OrderRepo orderRepo;
+
+	@Autowired
+	ProductRepo productRepo;
+
+	private Map<String, Item> map = new LinkedHashMap<>();
+
+	public void addItem(ItemAdd itemAdd) throws Exception {
+		ProductInfo productInfo = productService.findOne(itemAdd.getProductId());
+
+		if ("Unavailable".equals(productInfo.getProductStatus())) {
+			throw new Exception("Out Of Stock");
+		}
+
+		// Check whether is in the cart
+		if (map.containsKey(itemAdd.getProductId())) {
+			// Update quantity
+			Integer old = map.get(itemAdd.getProductId()).getQuantity();
+//            Integer old = map.get(itemAdd.getQuantity());
+			itemAdd.setQuantity(old + itemAdd.getQuantity());
+		}
+
+		map.put(itemAdd.getProductId(), new Item(productInfo, itemAdd.getQuantity()));
+	}
+
+	public Item removeItem(String productId) throws Exception {
+		if (!map.containsKey(productId))
+			throw new Exception("Product Not in cart");
+		return map.remove(productId);
+	}
+
+	public void updateQuantity(String productId, Integer quantity) throws Exception {
+		if (!map.containsKey(productId))
+			throw new Exception("Product Not in cart");
+		Item item = map.get(productId);
+		Integer max = item.getProductInfo().getProductStock();
+		if (quantity > 0) {
+			item.setQuantity(quantity);
+		}
+	}
+
+	@Transactional
+	public void checkout(User user) {
+		Order order = new Order(user);
+		for (String productId : map.keySet()) {
+			Item item = map.get(productId);
+//            ProductInOrder productInOrder = new ProductInOrder(item.getProductInfo(), item.getQuantity());
+//            productInOrder.setOrderMain(orderMain);
+//            orderMain.getProducts().add(productInOrder);
+			decreaseStock(productId, item.getQuantity());
+		}
+		order.setOrderAmount(getTotal());
+		orderRepo.save(order);
+		map.clear();
+	}
+	
+	public Double getTotal() {
+        Collection<Item> items = map.values();
+        BigDecimal total = new BigDecimal(0);
+        for (Item item : items) {
+            BigDecimal price = item.getProductInfo().getProductPrice();
+            BigDecimal quantity = new BigDecimal(item.getQuantity());
+            total = total.add(price.multiply(quantity));
+        }
+        return total;
+    }
+
+	public void decreaseStock(String productId, int amount) {
+		ProductInfo productInfo = productRepo.findFirstByProductId(productId);
+		if (productInfo == null)
+			throw new Exception("No Product Found");
+
+		int update = productInfo.getProductStock() - amount;
+		if (update <= 0)
+			throw new Exception("The quantity you requested is not in stock");
+
+		productInfo.setProductStock(update);
+		productRepo.save(productInfo);
+	}
+
+}

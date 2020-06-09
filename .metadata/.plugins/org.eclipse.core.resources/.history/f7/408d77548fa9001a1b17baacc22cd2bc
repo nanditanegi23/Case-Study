@@ -1,0 +1,26 @@
+package com.ibm.domain;
+
+public class Category {
+
+    @Id
+    @GeneratedValue
+    private Integer categoryId;
+
+    private String categoryName;
+
+    private Integer categoryType;
+
+    private Date createTime;
+
+    private Date updateTime;
+
+
+    public ProductCategory() {
+    }
+
+    public ProductCategory(String categoryName, Integer categoryType) {
+        this.categoryName = categoryName;
+        this.categoryType = categoryType;
+    }
+
+}

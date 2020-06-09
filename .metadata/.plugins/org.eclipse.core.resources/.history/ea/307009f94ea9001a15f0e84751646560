@@ -1,0 +1,13 @@
+package com.ibm.repository;
+
+import org.springframework.stereotype.Repository;
+
+import com.ibm.domain.ItemAdd;
+
+@Repository
+public interface CartRepo {
+
+	  void addItem(ItemAdd itemAdd);
+	    void removeItem(String productId);
+	    void updateQuantity(String productId, Integer quantity);
+}

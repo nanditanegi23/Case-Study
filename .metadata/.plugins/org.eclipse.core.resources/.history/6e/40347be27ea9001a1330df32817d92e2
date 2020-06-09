@@ -1,0 +1,56 @@
+package com.ibm.service;
+
+import java.util.List;
+
+import javax.transaction.Transactional;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.ibm.domain.Order;
+import com.ibm.domain.ProductInfo;
+import com.ibm.repository.OrderRepo;
+import com.ibm.repository.ProductRepo;
+
+@Service
+public class OrderService {
+
+	@Autowired
+	OrderRepo orderRepo;
+	
+	@Autowired
+	ProductRepo productRepo;
+
+	public List<Order> findAll() {
+		return orderRepo.findAllByOrderByOrderStatusAscCreateTimeAsc();
+	}
+
+	public Order findOne(Long orderId) throws Exception {
+		Order order = orderRepo.findByOrderId(orderId);
+		if (order == null) {
+			throw new Exception("No Order Found");
+		}
+		return order;
+	}
+	
+	
+	  @Transactional
+	    public void cancel(Long orderId) {
+	        Order order = findOne(orderId);
+
+	        order.setOrderStatus("Cancelled");
+	        orderRepo.save(order);
+
+	               increaseStock(productInOrder.getProductId(), productInOrder.getProductQuantity());
+	    }
+	  
+	  @Transactional
+	    public void increaseStock(String productId, int amount) {
+	        ProductInfo productInfo = ProductRepo.findOne(productId);
+	        if (productInfo == null) throw new MyException(ResultEnum.PRODUCT_NOT_EXIST);
+
+	        int update = productInfo.getProductStock() + amount;
+	        productInfo.setProductStock(update);
+	        productInfoRepository.save(productInfo);
+	    }
+}

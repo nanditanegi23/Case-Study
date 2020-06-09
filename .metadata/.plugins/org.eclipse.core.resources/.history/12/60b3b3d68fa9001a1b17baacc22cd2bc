@@ -1,0 +1,27 @@
+package com.ibm.controller;
+
+import org.springframework.stereotype.Controller;
+
+@Controller
+public class CategoryController {
+    @Autowired
+    CategoryService categoryService;
+    @Autowired
+    ProductService productService;
+
+    @GetMapping("/category/{type}")
+    public ModelAndView showOne(@PathVariable("type") Integer categoryType,
+                                @RequestParam(value = "page", defaultValue = "1") Integer page,
+                                @RequestParam(value = "size", defaultValue = "3") Integer size,
+                                Map<String, Object> map) {
+
+        ProductCategory res = categoryService.findByCategoryType(categoryType);
+        PageRequest request = PageRequest.of(page - 1, size);
+        Page<ProductInfo> productInCategory = productService.findAllInCategory(categoryType, request);
+        map.put("category", res);
+        map.put("products", productInCategory);
+        map.put("currentPage", page);
+        map.put("size", size);
+        return new ModelAndView("/category/show", map);
+    }
+}

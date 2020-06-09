@@ -1,0 +1,13 @@
+package com.ibm.domain;
+
+import javax.persistence.Entity;
+
+@Entity
+public class ItemAdd {
+
+	@Min(value = 1)
+    private Integer quantity;
+    @NotEmpty
+    private String productId;
+    
+}
